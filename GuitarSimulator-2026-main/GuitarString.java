@@ -23,6 +23,13 @@ public class GuitarString
 
     public GuitarString(double[] array) 
     {
+        sampleRate = array.length;
+        buffer = new RingBuffer(array.length);
+        for(int i = 0; i < array.length; i++) {
+            try {buffer.add(array[i]);}
+            catch(QueueOverflowException e) {System.out.println("The intitilization failed somehow idk bro");}
+        }
+        ticCount = 0;   
     }
 
     public void pluck() 
@@ -37,16 +44,24 @@ public class GuitarString
     }
 
     // advance the simulation one time step
-    public void tic() throws QueueOverflowException, QueueUnderflowException
+    public void tic()
     {
-        double d1 = buffer.remove();
-        double d2 = buffer.peek();
+        try {
+            double d1 = buffer.remove();
+            double d2 = buffer.peek();
 
-        double newD = ((d1 + d2) / 2) * 0.994;
-        
-        buffer.add(newD);
+            double newD = ((d1 + d2) / 2) * 0.994;
+            
+            buffer.add(newD);
 
-        ticCount++;
+            ticCount++;
+        }
+        catch (QueueUnderflowException e) {
+            System.out.println("The tic failed somehow and had an underflow exception idk bro");
+        }
+        catch (QueueOverflowException e) {
+            System.out.println("The tic failed somehow and had an overflow exception idk bro");
+        }
     }
 
     // return the current sample
